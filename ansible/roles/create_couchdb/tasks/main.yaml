@@ -1,0 +1,29 @@
+- name: Install docker
+  become: yes
+  apt:
+    name: ['docker.io']
+    state: latest
+    update_cache: yes
+    
+- name: Install python-docker
+  become: yes
+  apt:
+    name: ['python3-docker']
+    state: latest
+    update_cache: yes
+
+- name: Start couchdb container with docker
+  become: yes
+  docker_container:
+    name: "{{ couchdb_container_name}}"
+    image: "{{ couchdb_image }}"
+    ports:
+      - 5984:5984
+      - 4369:4369
+      - 9100:9100
+    env:
+      COUCHDB_USER: "{{ db_user }}"
+      COUCHDB_PASSWORD: "{{ db_pass }}"
+      COUCHDB_SECRET: "{{ db_cookie }}"
+      NODENAME: "{{ inventory_hostname }}"
+      ERL_FLAGS: "-setcookie \"{{ db_cookie }}\" -kernel inet_dist_listen_min \"{{ db_port3 }}\" -kernel inet_dist_listen_max \"{{ db_port3 }}\""
